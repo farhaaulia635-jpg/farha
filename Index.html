@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lahan Digital - Aplikasi Pertanian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #c8e8b5 0%, #8fc97a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        /* Container utama */
+        .app-container {
+            max-width: 500px;
+            width: 100%;
+            background: #fef7e0;
+            border-radius: 48px 48px 32px 32px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
+            overflow-y: auto;
+            max-height: 90vh;
+            position: relative;
+            border: 1px solid #e0c88a;
+        }
+
+        /* Halaman & layer */
+        .page, .layer {
+            padding: 24px 20px 30px;
+            transition: 0.2s;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Ilustrasi alam dasar */
+        .nature-bg {
+            position: relative;
+            background: #cfe9bf;
+            border-radius: 40px 40px 30px 30px;
+            overflow: hidden;
+        }
+
+        .sun {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            width: 55px;
+            height: 55px;
+            background: #FFD966;
+            border-radius: 50%;
+            box-shadow: 0 0 0 8px rgba(255, 217, 102, 0.3);
+            z-index: 1;
+        }
+
+        .cloud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            width: 70px;
+            height: 45px;
+            border-radius: 60px;
+            box-shadow: 25px 10px 0 0 white, 45px 0px 0 0 rgba(255,255,240,0.8);
+            z-index: 1;
+        }
+
+        .hills {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 110px;
+            background: #7dab60;
+            border-radius: 50% 50% 0 0;
+        }
+        .hill-left {
+            position: absolute;
+            bottom: 0;
+            left: -20px;
+            width: 140px;
+            height: 100px;
+            background: #5f8b4c;
+            border-radius: 100% 40% 0 0;
+        }
+        .hill-right {
+            position: absolute;
+            bottom: 0;
+            right: -20px;
+            width: 140px;
+            height: 110px;
+            background: #4f723e;
+            border-radius: 40% 100% 0 0;
+        }
+        .soil-mound {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 45px;
+            background: #a57348;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .small-plant {
+            position: absolute;
+            bottom: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 25px;
+            background: #4c9141;
+            border-radius: 0 0 4px 4px;
+            z-index: 3;
+        }
+        .small-plant::before, .small-plant::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #6fbf4c;
+            border-radius: 50% 0 50% 0;
+            top: -8px;
+        }
+        .small-plant::before { left: -6px; transform: rotate(-30deg);}
+        .small-plant::after { right: -6px; transform: rotate(30deg);}
+
+        /* Tombol */
+        button {
+            background: #3f7846;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:active { transform: scale(0.96);}
+        .btn-add {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #2e7d32;
+            font-size: 2rem;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .btn-delete {
+            background: #b34e2e;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .btn-delete:active {
+            transform: scale(0.96);
+        }
+        .btn-danger {
+            background: #b34e2e;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        /* Input styling */
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 16px;
+            border-radius: 28px;
+            border: 1px solid #c0b280;
+            background: #fff9ef;
+            font-size: 1rem;
+        }
+        .identitas-card {
+            background: rgba(255,252,225,0.9);
+            border-radius: 32px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .lahan-list, .catatan-list {
+            margin: 16px 0;
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+        .item-card {
+            background: white;
+            border-radius: 28px;
+            padding: 12px 18px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .nav-bar {
+            display: flex;
+            justify-content: space-around;
+            background: #f0e2b6;
+            padding: 12px;
+            border-radius: 60px;
+            margin: 20px 0 10px;
+        }
+        .nav-btn {
+            background: transparent;
+            color: #4a5b2e;
+            box-shadow: none;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .active-nav {
+            background: #acd47a;
+            color: #1f3b0c;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .back-arrow {
+            font-size: 2rem;
+            background: none;
+            color: #3b5c2a;
+            box-shadow: none;
+            padding: 0;
+            width: 45px;
+            text-align: left;
+        }
+        .modal-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #fff7e8;
+            max-width: 450px;
+            width: 90%;
+            border-radius: 48px;
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        /* Layer 4 specific styles */
+        .layer4-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .layer4-title {
+            text-align: center;
+            flex: 1;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d441d;
+        }
+        .detail-catatan-content {
+            min-height: 300px;
+        }
+        .detail-catatan-content textarea {
+            min-height: 250px;
+            resize: vertical;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .plant-visual {
+            width: 100px;
+            height: 100px;
+            background: #b3d9a0;
+            border-radius: 50%;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        .task-list {
+            background: #e5dbbc;
+            border-radius: 28px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .task-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #c8b87a;
+        }
+        .task-item:last-child {
+            border-bottom: none;
+        }
+        .task-info {
+            flex: 1;
+        }
+        .task-title {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .task-time {
+            font-size: 0.8rem;
+            color: #6b5a2e;
+        }
+        .check-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0e2b6;
+            color: #3f7846;
+            font-size: 1.2rem;
+            padding: 0;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .check-btn.completed {
+            background: #4caf50;
+            color: white;
+        }
+        .check-btn.disabled {
+            background: #ccc;
+            color: #666;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        .task-progress {
+            margin-top: 12px;
+            padding-top: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #2d441d;
+            border-top: 1px solid #c8b87a;
+        }
+        .lock-icon {
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+        hr {
+            margin: 12px 0;
+        }
+        .warning {
+            color: #b34e2e;
+            font-size: 0.8rem;
+        }
+        .info-text {
+            font-size: 0.75rem;
+            color: #6b5a2e;
+            margin-top: -12px;
+            margin-bottom: 12px;
+        }
+        .timestamp-text {
+            font-size: 0.7rem;
+            color: #8b7a4a;
+            text-align: right;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="appRoot">
+    <!-- Halaman Opening (muncul sekali) -->
+    <div id="openingPage" class="page nature-bg" style="position: relative; min-height: 550px;">
+        <div class="sun"></div><div class="cloud"></div>
+        <div class="hill-left"></div><div class="hill-right"></div>
+        <div class="hills"></div>
+        <div class="soil-mound"></div><div class="small-plant"></div>
+        <div style="position: relative; z-index: 10; text-align: center; padding-top: 50%;">
+            <h1 style="color: #2d441d; background: rgba(255,250,210,0.8); display: inline-block; padding: 12px 28px; border-radius: 60px;">🌾 Selamat datang di Lahan Digital 🌱</h1>
+            <br><br>
+            <button id="btnEnter">🌻 Masuk</button>
+        </div>
+    </div>
+
+    <!-- Halaman Identitas (muncul sekali) -->
+    <div id="identitasPage" class="page nature-bg hidden" style="min-height: 550px;">
+        <div class="sun"></div><div class="cloud"></div>
+        <div class="identitas-card">
+            <h2>🌿 Masukan Identitas Anda</h2>
+            <input type="text" id="inputNama" placeholder="Masukan Nama Anda">
+            <label>Tanggal Lahir (Usia minimal 12 tahun):</label>
+            <input type="date" id="inputTanggalLahir">
+            <p class="warning" id="errorAge"></p>
+            <button id="btnSaveIdentitas">Lanjutkan 🚀</button>
+        </div>
+        <div class="hill-left"></div><div class="hill-right"></div>
+    </div>
+
+    <!-- Navigasi Utama (Lahan & Catatan) -->
+    <div id="mainNavPage" class="hidden">
+        <div class="nav-bar">
+            <button class="nav-btn" id="navLahanBtn">🌾 Lahan</button>
+            <button class="nav-btn" id="navCatatanBtn">📘 Catatan</button>
+        </div>
+        <div id="lahanSection">
+            <div style="background: #e2d5a4; border-radius: 32px; padding: 15px; position: relative; min-height: 400px;">
+                <!-- ilustrasi lahan : cabai, tomat, sayur -->
+                <div style="display: flex; justify-content: space-between; font-size: 2rem;">🌶️ 🥬 🍅</div>
+                <h3>🌾 Lahan Tanaman</h3>
+                <div id="lahanListContainer" class="lahan-list">
+                    <!-- data lahan muncul disini -->
+                </div>
+            </div>
+        </div>
+        <div id="catatanSection" class="hidden">
+            <div style="background: #e2d5a4; border-radius: 32px; padding: 15px; min-height: 400px;">
+                <div style="text-align:center; position: relative;">
+                    <span style="font-size: 80px;">📕📘</span>
+                    <div style="font-size: 30px; font-weight: bold;">note book <span style="font-size: 48px;">📓</span> <span style="font-size: 42px;">7</span></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 28px; margin-top: 10px;">A B C D</div>
+                </div>
+                <h3>📒 Catatan Saya</h3>
+                <div id="catatanListContainer" class="catatan-list"></div>
+            </div>
+        </div>
+        <button class="btn-add" id="globalAddBtn">+</button>
+    </div>
+</div>
+
+<script>
+    // ======================== DATA & STORAGE ========================
+    let userData = { nama: "", tglLahir: "", isIdentitasDone: false };
+    let tanamanList = [];     
+    let catatanList = [];     
+
+    // Fungsi untuk reset tugas harian dan update usia
+    function checkAndUpdateDaily() {
+        const today = new Date().toDateString();
+        
+        tanamanList.forEach(tanaman => {
+            // Cek dan reset tugas harian
+            if (!tanaman.lastResetDate) {
+                tanaman.lastResetDate = today;
+            }
+            
+            // Jika ganti hari, reset tugas harian
+            if (tanaman.lastResetDate !== today) {
+                tanaman.tasks.forEach(task => {
+                    // Reset hanya tugas siram pagi dan siram sore setiap hari
+                    if (task.id === "siram_pagi" || task.id === "siram_sore") {
+                        task.completed = false;
+                    }
+                });
+                tanaman.lastResetDate = today;
+            }
+        });
+        saveAll();
+    }
+
+    // Fungsi untuk mengecek apakah pemupukan bisa diakses
+    function isFertilizerAvailable(usiaTanaman, taskId) {
+        if (taskId === "pemupukan_1") {
+            return usiaTanaman >= 14;
+        } else if (taskId === "pemupukan_2") {
+            return usiaTanaman >= 21;
+        }
+        return true;
+    }
+
+    // Struktur tugas default
+    const defaultTasks = [
+        { id: "siram_pagi", title: "💧 Siram Pagi", time: "05:00 – 08:00", completed: false },
+        { id: "siram_sore", title: "💧 Siram Sore", time: "16:00 – 18:00", completed: false },
+        { id: "pemupukan_1", title: "🌾 Pemupukan Awal", time: "Usia 14 hari (Minggu 2)", completed: false, requiredAge: 14 },
+        { id: "pemupukan_2", title: "🌾 Pemupukan Lanjutan", time: "Usia 21 & 28 hari", completed: false, requiredAge: 21 }
+    ];
+
+    // fungsi helper simpan semua
+    function saveAll() {
+        localStorage.setItem("lahan_digital_user", JSON.stringify(userData));
+        localStorage.setItem("lahan_digital_tanaman", JSON.stringify(tanamanList));
+        localStorage.setItem("lahan_digital_catatan", JSON.stringify(catatanList));
+    }
+
+    function loadData() {
+        const storedUser = localStorage.getItem("lahan_digital_user");
+        if(storedUser) userData = JSON.parse(storedUser);
+        const storedTanaman = localStorage.getItem("lahan_digital_tanaman");
+        if(storedTanaman) {
+            tanamanList = JSON.parse(storedTanaman);
+            // Pastikan setiap tanaman memiliki properti tasks dan lastResetDate
+            tanamanList.forEach(t => {
+                if (!t.tasks) {
+                    t.tasks = JSON.parse(JSON.stringify(defaultTasks));
+                }
+                if (!t.lastResetDate) {
+                    t.lastResetDate = new Date().toDateString();
+                }
+            });
+        }
+        const storedCatatan = localStorage.getItem("lahan_digital_catatan");
+        if(storedCatatan) catatanList = JSON.parse(storedCatatan);
+    }
+
+    // Cek usia dari tanggal lahir (min 12 tahun)
+    function isAgeValid(tglLahirStr) {
+        if(!tglLahirStr) return false;
+        const birth = new Date(tglLahirStr);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if(m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        return age >= 12;
+    }
+
+    // ======================== RENDER HALAMAN UTAMA (LAHAN & CATATAN) ========================
+    let currentActiveTab = "lahan";
+
+    function renderLahanList() {
+        const container = document.getElementById("lahanListContainer");
+        if(!container) return;
+        if(tanamanList.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 40px;">🌱 Anda belum membuat data lahan</div>`;
+        } else {
+            container.innerHTML = tanamanList.map(t => {
+                const usiaSekarang = hitungUsiaTanaman(t.tanggalTanam);
+                const status = usiaSekarang >= 28 ? "✅ Siap panen" : `🌿 Usia ${usiaSekarang} hari`;
+                // Hitung progress tugas (hanya yang available)
+                const availableTasks = t.tasks.filter(task => {
+                    if (task.id === "pemupukan_1") return usiaSekarang >= 14;
+                    if (task.id === "pemupukan_2") return usiaSekarang >= 21;
+                    return true;
+                });
+                const completedCount = availableTasks.filter(task => task.completed).length;
+                const totalTasks = availableTasks.length;
+                return `<div class="item-card" data-id="${t.id}">
+                            <div>
+                                <strong>${t.namaTanaman}</strong><br>
+                                ${t.mediaTanam} | ${status}<br>
+                                <small>📋 Tugas: ${completedCount}/${totalTasks} selesai</small>
+                            </div>
+                            <span>👉</span>
+                        </div>`;
+            }).join('');
+            // event klik detail
+            document.querySelectorAll('#lahanListContainer .item-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const id = parseInt(card.dataset.id);
+                    const tanaman = tanamanList.find(t => t.id === id);
+                    if(tanaman) openLayer2Detail(tanaman);
+                });
+            });
+        }
+    }
+
+    function hitungUsiaTanaman(tanggalTanamStr) {
+        const tanam = new Date(tanggalTanamStr);
+        const now = new Date();
+        const diffTime = now - tanam;
+        const usia = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return usia >= 0 ? usia : 0;
+    }
+
+    function renderCatatanList() {
+        const container = document.getElementById("catatanListContainer");
+        if(!container) return;
+        if(catatanList.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 40px;">📭 Belum ada catatan. Tekan + untuk menulis.</div>`;
+        } else {
+            container.innerHTML = catatanList.map(c => `
+                <div class="item-card" data-id="${c.id}" style="flex-direction:column; align-items:flex-start;">
+                    <strong>📌 ${c.judul}</strong>
+                    <small>${new Date(c.timestamp).toLocaleString()}</small>
+                    <p style="font-size:0.85rem;">${c.isi.substring(0, 60)}${c.isi.length>60?'...':''}</p>
+                </div>
+            `).join('');
+            // Klik untuk membuka detail catatan (Layer 4)
+            document.querySelectorAll('#catatanListContainer .item-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(card.dataset.id);
+                    const catatan = catatanList.find(c => c.id === id);
+                    if(catatan) openLayer4Detail(catatan);
+                });
+                
+                // Tekan lama untuk hapus (tetap dipertahankan)
+                let pressTimer;
+                card.addEventListener('touchstart', (e) => { 
+                    pressTimer = setTimeout(() => { 
+                        hapusCatatan(parseInt(card.dataset.id)); 
+                    }, 2000); 
+                });
+                card.addEventListener('touchend', () => clearTimeout(pressTimer));
+                card.addEventListener('mousedown', (e) => { 
+                    pressTimer = setTimeout(() => { 
+                        hapusCatatan(parseInt(card.dataset.id)); 
+                    }, 2000); 
+                });
+                card.addEventListener('mouseup', () => clearTimeout(pressTimer));
+            });
+        }
+    }
+
+    function hapusCatatan(id) {
+        if(confirm("Hapus catatan ini?")) {
+            catatanList = catatanList.filter(c => c.id !== id);
+            saveAll();
+            renderCatatanList();
+        }
+    }
+
+    function switchTab(tab) {
+        currentActiveTab = tab;
+        const lahanDiv = document.getElementById("lahanSection");
+        const catatanDiv = document.getElementById("catatanSection");
+        const navLahan = document.getElementById("navLahanBtn");
+        const navCatatan = document.getElementById("navCatatanBtn");
+        if(tab === "lahan") {
+            lahanDiv.classList.remove("hidden");
+            catatanDiv.classList.add("hidden");
+            navLahan.classList.add("active-nav");
+            navCatatan.classList.remove("active-nav");
+            renderLahanList();
+        } else {
+            lahanDiv.classList.add("hidden");
+            catatanDiv.classList.remove("hidden");
+            navCatatan.classList.add("active-nav");
+            navLahan.classList.remove("active-nav");
+            renderCatatanList();
+        }
+    }
+
+    // Fungsi hapus data lahan
+    function hapusLahan(tanamanId, modalElement) {
+        if(confirm("⚠️ Yakin ingin menghapus data lahan ini? Data tidak dapat dikembalikan!")) {
+            tanamanList = tanamanList.filter(t => t.id !== tanamanId);
+            saveAll();
+            modalElement.remove();
+            renderLahanList();
+            if(currentActiveTab === "lahan") renderLahanList();
+        }
+    }
+
+    // ======================== LAYER 4 (Detail Catatan - Bisa Edit) ========================
+    function openLayer4Detail(catatan) {
+        const modal = document.createElement('div');
+        modal.className = 'modal-layer';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-height: 90vh;">
+                <div class="layer4-header">
+                    <button class="back-arrow" id="closeLayer4Btn">←</button>
+                    <div class="layer4-title">📝 Edit Catatan</div>
+                    <button class="btn-danger" id="hapusCatatanBtn" style="background:#b34e2e; padding:8px 16px;">🗑️</button>
+                </div>
+                <div class="detail-catatan-content">
+                    <input type="text" id="editJudulCatatan" value="${escapeHtml(catatan.judul)}" placeholder="Judul catatan" style="font-size:1.1rem; font-weight:bold;">
+                    <textarea id="editIsiCatatan" rows="12" placeholder="Tulis catatan Anda di sini...">${escapeHtml(catatan.isi)}</textarea>
+                    <div class="timestamp-text">📅 Terakhir diedit: ${new Date().toLocaleString()}</div>
+                    <div class="info-text" style="margin-top: 8px;">💡 Catatan akan otomatis tersimpan saat Anda selesai mengedit.</div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        const judulInput = document.getElementById('editJudulCatatan');
+        const isiTextarea = document.getElementById('editIsiCatatan');
+        let saveTimeout;
+        
+        // Fungsi auto-save
+        function autoSave() {
+            const newJudul = judulInput.value.trim();
+            const newIsi = isiTextarea.value;
+            
+            if(newJudul === "") {
+                alert("Judul tidak boleh kosong!");
+                return false;
+            }
+            
+            catatan.judul = newJudul;
+            catatan.isi = newIsi;
+            catatan.timestamp = new Date().toISOString();
+            saveAll();
+            
+            // Update timestamp display
+            const timestampDiv = modal.querySelector('.timestamp-text');
+            if(timestampDiv) {
+                timestampDiv.innerHTML = `📅 Terakhir diedit: ${new Date().toLocaleString()}`;
+            }
+            
+            // Update daftar catatan
+            renderCatatanList();
+            return true;
+        }
+        
+        // Auto-save saat mengetik (debounced)
+        function handleInput() {
+            if(saveTimeout) clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                if(judulInput.value.trim() !== "") {
+                    autoSave();
+                }
+            }, 1000);
+        }
+        
+        judulInput.addEventListener('input', handleInput);
+        isiTextarea.addEventListener('input', handleInput);
+        
+        // Tombol kembali
+        document.getElementById('closeLayer4Btn').onclick = () => {
+            if(saveTimeout) clearTimeout(saveTimeout);
+            autoSave(); // Save terakhir sebelum tutup
+            modal.remove();
+        };
+        
+        // Tombol hapus catatan
+        document.getElementById('hapusCatatanBtn').onclick = () => {
+            if(confirm("⚠️ Yakin ingin menghapus catatan ini? Data tidak dapat dikembalikan!")) {
+                catatanList = catatanList.filter(c => c.id !== catatan.id);
+                saveAll();
+                modal.remove();
+                renderCatatanList();
+                if(currentActiveTab === "catatan") renderCatatanList();
+            }
+        };
+    }
+    
+    // Helper function untuk escape HTML
+    function escapeHtml(text) {
+        if(!text) return "";
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // ======================== LAYER 1 (Input Tanaman) ========================
+    function openLayer1() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-layer';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <button class="back-arrow" id="closeLayer1Btn">← Kembali</button>
+                <h3 style="text-align:center;">🌱 Silahkan isi data<br>Tanaman Anda</h3>
+                <label>Media tanam</label>
+                <input id="inputMedia" placeholder="Contoh: Tanah, Hidroponik">
+                <label>Nama tanaman</label>
+                <input id="inputNamaTanaman" placeholder="Contoh: Pakcoy, Cabai">
+                <label>Usia tanaman saat ini (hari)</label>
+                <input id="inputUsiaAwal" type="number" value="0" placeholder="0" min="0">
+                <div class="info-text">💡 Contoh: Jika tanaman sudah berusia 13 hari, isi 13. Maka besok akan menjadi 14 hari dan tugas pemupukan akan muncul.</div>
+                <button id="simpanTanamanBtn">🌿 Simpan</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('closeLayer1Btn').onclick = () => modal.remove();
+        document.getElementById('simpanTanamanBtn').onclick = () => {
+            const media = document.getElementById('inputMedia').value.trim();
+            const nama = document.getElementById('inputNamaTanaman').value.trim();
+            if(media === "" || nama === "") {
+                alert("Harap isi semua data tanaman!");
+                return;
+            }
+            
+            const usiaInput = parseInt(document.getElementById('inputUsiaAwal').value) || 0;
+            const newId = Date.now();
+            
+            // Hitung tanggal tanam berdasarkan usia input
+            const today = new Date();
+            const tanggalTanam = new Date(today);
+            tanggalTanam.setDate(today.getDate() - usiaInput);
+            
+            tanamanList.push({
+                id: newId,
+                mediaTanam: media,
+                namaTanaman: nama,
+                tanggalTanam: tanggalTanam.toISOString(),
+                statusPanen: false,
+                tasks: JSON.parse(JSON.stringify(defaultTasks)),
+                lastResetDate: new Date().toDateString()
+            });
+            saveAll();
+            modal.remove();
+            renderLahanList();
+            if(currentActiveTab === "lahan") renderLahanList();
+        };
+    }
+
+    // ======================== LAYER 2 (Detail & Perkembangan Tanaman + Tugas dengan Ceklis + Hapus) ========================
+    function openLayer2Detail(tanaman) {
+        const usia = hitungUsiaTanaman(tanaman.tanggalTanam);
+        let faseDeskripsi = "";
+        if(usia <=2) faseDeskripsi = "🌱 Belum terlihat / biji berkecambah";
+        else if(usia <=6) faseDeskripsi = "🌿 Muncul 2 daun kecil";
+        else if(usia <=14) faseDeskripsi = "🍃 Daun mulai banyak, pertumbuhan baik";
+        else if(usia >=28) faseDeskripsi = "🎉 TANAMAN SIAP PANEN! 🎉";
+        else faseDeskripsi = "🌾 Pertumbuhan aktif, daun rimbun";
+        
+        const statusText = usia >= 28 ? "✅ Tanaman anda siap panen" : `🌻 Usia ${usia} hari`;
+        
+        // Filter tugas berdasarkan usia
+        const availableTasks = tanaman.tasks.filter(task => {
+            if (task.id === "pemupukan_1") return usia >= 14;
+            if (task.id === "pemupukan_2") return usia >= 21;
+            return true;
+        });
+        
+        const completedCount = availableTasks.filter(task => task.completed).length;
+        const totalTasks = availableTasks.length;
+        const progressPercent = totalTasks > 0 ? (completedCount / totalTasks) * 100 : 0;
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal-layer';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <button class="back-arrow" id="closeLayer2Btn">← Kembali</button>
+                <div style="text-align:center;">
+                    <div class="plant-visual">${tanaman.namaTanaman === "Pakcoy" ? "🥬" : "🌿"}</div>
+                    <h3>${tanaman.namaTanaman}</h3>
+                    <p>${statusText}</p>
+                    <p><strong>Media:</strong> ${tanaman.mediaTanam}</p>
+                    <p><strong>Perkembangan:</strong> ${faseDeskripsi}</p>
+                </div>
+                <div class="task-list">
+                    <h4>📋 Daftar Tugas</h4>
+                    <div id="tasksContainer"></div>
+                    <div class="task-progress">
+                        📊 Progress: ${completedCount}/${totalTasks} tugas selesai (${totalTasks > 0 ? Math.round(progressPercent) : 0}%)
+                    </div>
+                </div>
+                <button class="btn-delete" id="hapusLahanBtn">🗑️ Hapus Lahan Ini</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Event hapus lahan
+        document.getElementById('hapusLahanBtn').onclick = () => {
+            hapusLahan(tanaman.id, modal);
+        };
+        
+        // Render daftar tugas
+        const tasksContainer = modal.querySelector('#tasksContainer');
+        function renderTasks() {
+            // Filter ulang tugas berdasarkan usia terbaru
+            const currentUsia = hitungUsiaTanaman(tanaman.tanggalTanam);
+            const currentAvailableTasks = tanaman.tasks.filter(task => {
+                if (task.id === "pemupukan_1") return currentUsia >= 14;
+                if (task.id === "pemupukan_2") return currentUsia >= 21;
+                return true;
+            });
+            
+            if (currentAvailableTasks.length === 0) {
+                tasksContainer.innerHTML = `<div style="text-align:center; padding: 20px;">✨ Belum ada tugas yang tersedia untuk usia ini</div>`;
+                return;
+            }
+            
+            tasksContainer.innerHTML = currentAvailableTasks.map(task => {
+                const isAvailable = isFertilizerAvailable(currentUsia, task.id);
+                return `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <div class="task-title">${task.title} ${!isAvailable ? '<span class="lock-icon">🔒</span>' : ''}</div>
+                            <div class="task-time">⏰ ${task.time}</div>
+                        </div>
+                        <button class="check-btn ${task.completed ? 'completed' : ''} ${!isAvailable ? 'disabled' : ''}" 
+                                data-task-id="${task.id}" 
+                                ${!isAvailable ? 'disabled' : ''}>
+                            ${task.completed ? '✓' : '○'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+            
+            // Tambahkan event listener untuk setiap tombol ceklis (hanya yang tidak disabled)
+            tasksContainer.querySelectorAll('.check-btn:not(.disabled)').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const taskId = btn.dataset.taskId;
+                    const task = tanaman.tasks.find(t => t.id === taskId);
+                    if (task) {
+                        task.completed = !task.completed;
+                        saveAll();
+                        renderTasks(); // Re-render tugas
+                        // Update progress di modal
+                        const newUsia = hitungUsiaTanaman(tanaman.tanggalTanam);
+                        const newAvailableTasks = tanaman.tasks.filter(t => {
+                            if (t.id === "pemupukan_1") return newUsia >= 14;
+                            if (t.id === "pemupukan_2") return newUsia >= 21;
+                            return true;
+                        });
+                        const newCompletedCount = newAvailableTasks.filter(t => t.completed).length;
+                        const newTotalTasks = newAvailableTasks.length;
+                        const newProgressPercent = newTotalTasks > 0 ? (newCompletedCount / newTotalTasks) * 100 : 0;
+                        const progressDiv = modal.querySelector('.task-progress');
+                        if (progressDiv) {
+                            progressDiv.innerHTML = `📊 Progress: ${newCompletedCount}/${newTotalTasks} tugas selesai (${newTotalTasks > 0 ? Math.round(newProgressPercent) : 0}%)`;
+                        }
+                        // Update juga di list lahan
+                        renderLahanList();
+                    }
+                });
+            });
+        }
+        
+        renderTasks();
+        
+        document.getElementById('closeLayer2Btn').onclick = () => {
+            saveAll();
+            modal.remove();
+        };
+    }
+
+    // ======================== LAYER 3 (Tambah Catatan Baru) ========================
+    function openLayer3() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-layer';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <button class="back-arrow" id="closeLayer3Btn">← Kembali</button>
+                <h3>📝 Buat Catatan Baru</h3>
+                <input id="judulCatatan" placeholder="Judul catatan">
+                <textarea id="isiCatatan" rows="5" placeholder="Tulis isi catatan... (otomatis tersimpan)" style="border-radius: 24px;"></textarea>
+                <p><small>Catatan akan tersimpan otomatis saat dibuat.</small></p>
+                <button id="simpanCatatanBtn">💾 Simpan Catatan</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        const close = () => modal.remove();
+        document.getElementById('closeLayer3Btn').onclick = close;
+        document.getElementById('simpanCatatanBtn').onclick = () => {
+            const judul = document.getElementById('judulCatatan').value.trim();
+            const isi = document.getElementById('isiCatatan').value.trim();
+            if(judul === "") { alert("Judul tidak boleh kosong"); return; }
+            catatanList.push({
+                id: Date.now(),
+                judul: judul,
+                isi: isi || "(tanpa isi)",
+                timestamp: new Date().toISOString()
+            });
+            saveAll();
+            modal.remove();
+            if(currentActiveTab === "catatan") renderCatatanList();
+            else switchTab("catatan");
+        };
+    }
+
+    // ======================== ALUR APLIKASI (Opening -> Identitas -> Navigasi) ========================
+    let openingShown = !localStorage.getItem("opening_done");
+    let identitasDone = false;
+
+    function initApp() {
+        loadData();
+        
+        // Update dan reset tugas harian setiap kali aplikasi dimulai
+        checkAndUpdateDaily();
+        
+        if(userData.isIdentitasDone && userData.nama !== "") identitasDone = true;
+        
+        const openingPage = document.getElementById("openingPage");
+        const identitasPage = document.getElementById("identitasPage");
+        const mainNavPage = document.getElementById("mainNavPage");
+
+        if(openingShown && !localStorage.getItem("opening_done")) {
+            openingPage.classList.remove("hidden");
+            identitasPage.classList.add("hidden");
+            mainNavPage.classList.add("hidden");
+            document.getElementById("btnEnter").onclick = () => {
+                localStorage.setItem("opening_done", "true");
+                openingPage.classList.add("hidden");
+                if(!identitasDone) identitasPage.classList.remove("hidden");
+                else { mainNavPage.classList.remove("hidden"); switchTab("lahan"); }
+            };
+        } else {
+            openingPage.classList.add("hidden");
+            if(!identitasDone && !userData.isIdentitasDone) identitasPage.classList.remove("hidden");
+            else { identitasPage.classList.add("hidden"); mainNavPage.classList.remove("hidden"); switchTab("lahan"); }
+        }
+
+        // Halaman identitas
+        const btnSave = document.getElementById("btnSaveIdentitas");
+        btnSave.onclick = () => {
+            const nama = document.getElementById("inputNama").value.trim();
+            const tglLahir = document.getElementById("inputTanggalLahir").value;
+            if(nama === "") { alert("Nama harus diisi"); return; }
+            if(!isAgeValid(tglLahir)) {
+                document.getElementById("errorAge").innerText = "Usia minimal 12 tahun!";
+                return;
+            }
+            userData = { nama: nama, tglLahir: tglLahir, isIdentitasDone: true };
+            saveAll();
+            identitasPage.classList.add("hidden");
+            mainNavPage.classList.remove("hidden");
+            switchTab("lahan");
+        };
+
+        // Navigasi antar lahan & catatan
+        document.getElementById("navLahanBtn").onclick = () => switchTab("lahan");
+        document.getElementById("navCatatanBtn").onclick = () => switchTab("catatan");
+        document.getElementById("globalAddBtn").onclick = () => {
+            if(currentActiveTab === "lahan") openLayer1();
+            else openLayer3();
+        };
+        if(!identitasDone && !openingShown) {
+            if(userData.isIdentitasDone) {
+                identitasPage.classList.add("hidden");
+                mainNavPage.classList.remove("hidden");
+                switchTab("lahan");
+            }
+        }
+        renderLahanList();
+        renderCatatanList();
+    }
+
+    initApp();
+</script>
+</body>
+</html>
